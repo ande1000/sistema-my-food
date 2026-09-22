@@ -11,8 +11,38 @@ const TEMPO_ATRASO_MIN = 5;         // depois de "pronto", se passar disso sem s
 // para ser salvo direto no Firestore (sem precisar de servidor de upload)
 function arquivoParaBase64(file, callback) {
   if (!file) return callback(null);
+
+  // fotos de câmera de celular podem vir com vários MB, o que estoura
+  // o limite de 1MB por documento do Firestore. Por isso redimensionamos
+  // e comprimimos a imagem antes de transformar em base64.
+  const DIMENSAO_MAX = 800;
+  const QUALIDADE = 0.7;
+
   const leitor = new FileReader();
-  leitor.onload = () => callback(leitor.result);
+  leitor.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      let largura = img.width;
+      let altura = img.height;
+
+      if (largura > altura && largura > DIMENSAO_MAX) {
+        altura = Math.round(altura * (DIMENSAO_MAX / largura));
+        largura = DIMENSAO_MAX;
+      } else if (altura > DIMENSAO_MAX) {
+        largura = Math.round(largura * (DIMENSAO_MAX / altura));
+        altura = DIMENSAO_MAX;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = largura;
+      canvas.height = altura;
+      canvas.getContext("2d").drawImage(img, 0, 0, largura, altura);
+      callback(canvas.toDataURL("image/jpeg", QUALIDADE));
+    };
+    img.onerror = () => callback(leitor.result);
+    img.src = leitor.result;
+  };
+  leitor.onerror = () => callback(null);
   leitor.readAsDataURL(file);
 }
 
