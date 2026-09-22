@@ -414,12 +414,18 @@ function renderizarCardapio(containerId) {
           <div class="desc">${escapeHtml(p.descricao || "")}</div>
         </div>
         <div class="valor">${formatarValor(p.valor)}</div>
-        <button class="excluir" data-id="${doc.id}">excluir</button>
+        <div class="acoes">
+          <button class="editar" data-id="${doc.id}">editar</button>
+          <button class="excluir" data-id="${doc.id}">excluir</button>
+        </div>
       `;
       item.querySelector(".excluir").addEventListener("click", () => {
         if (confirm("remover este item do cardápio?")) {
           lojaRef.collection("produtos").doc(doc.id).delete();
         }
+      });
+      item.querySelector(".editar").addEventListener("click", () => {
+        abrirEdicaoProduto(doc.id, p);
       });
       container.appendChild(item);
     });
@@ -428,10 +434,47 @@ function renderizarCardapio(containerId) {
 lojaRef.collection("produtos").orderBy("criadoEm", "desc").onSnapshot(renderizarCardapio("cardapioLista"));
 lojaRef.collection("produtos").orderBy("criadoEm", "desc").onSnapshot(renderizarCardapio("catalogoLista"));
 
-/* ---------------- VENDER (criar novo produto) ---------------- */
-document.getElementById("btnAddProduto").addEventListener("click", () => {
+/* ---------------- VENDER (criar ou editar produto) ---------------- */
+let produtoEditandoId = null; // null = criando um item novo; com id = editando um existente
+
+function abrirFormProduto() {
   document.getElementById("formProduto").style.display = "block";
   document.getElementById("venderInicial").style.display = "none";
+}
+
+function fecharFormProduto() {
+  document.getElementById("formProduto").reset();
+  fotoProdutoBase64 = null;
+  produtoEditandoId = null;
+  document.getElementById("labelFotoProduto").style.backgroundImage = "";
+  document.getElementById("labelFotoProduto").textContent = "escolher foto";
+  document.getElementById("btnSalvarProduto").textContent = "salvar";
+  document.getElementById("btnCancelarEdicaoProduto").style.display = "none";
+  document.getElementById("formProduto").style.display = "none";
+  document.getElementById("venderInicial").style.display = "block";
+}
+
+function abrirEdicaoProduto(id, p) {
+  produtoEditandoId = id;
+  fotoProdutoBase64 = p.foto || null;
+  document.getElementById("nomeProduto").value = p.nome || "";
+  document.getElementById("descProduto").value = p.descricao || "";
+  document.getElementById("valorProduto").value = p.valor || "";
+  document.getElementById("labelFotoProduto").style.backgroundImage = p.foto ? `url('${p.foto}')` : "";
+  document.getElementById("labelFotoProduto").textContent = p.foto ? "" : "escolher foto";
+  document.getElementById("btnSalvarProduto").textContent = "salvar edição";
+  document.getElementById("btnCancelarEdicaoProduto").style.display = "block";
+  mostrarSecao("vender");
+  abrirFormProduto();
+}
+
+document.getElementById("btnAddProduto").addEventListener("click", () => {
+  produtoEditandoId = null;
+  abrirFormProduto();
+});
+
+document.getElementById("btnCancelarEdicaoProduto").addEventListener("click", () => {
+  fecharFormProduto();
 });
 
 let fotoProdutoBase64 = null;
@@ -450,18 +493,20 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   const valor = parseFloat(document.getElementById("valorProduto").value || 0);
   if (!nome || !valor) return;
 
-  await lojaRef.collection("produtos").add({
-    nome, descricao, valor,
-    foto: fotoProdutoBase64 || "",
-    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
+  if (produtoEditandoId) {
+    await lojaRef.collection("produtos").doc(produtoEditandoId).update({
+      nome, descricao, valor,
+      foto: fotoProdutoBase64 || ""
+    });
+  } else {
+    await lojaRef.collection("produtos").add({
+      nome, descricao, valor,
+      foto: fotoProdutoBase64 || "",
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
 
-  e.target.reset();
-  fotoProdutoBase64 = null;
-  document.getElementById("labelFotoProduto").style.backgroundImage = "";
-  document.getElementById("labelFotoProduto").textContent = "escolher foto";
-  document.getElementById("formProduto").style.display = "none";
-  document.getElementById("venderInicial").style.display = "block";
+  fecharFormProduto();
   mostrarSecao("cardapio");
 });
 
