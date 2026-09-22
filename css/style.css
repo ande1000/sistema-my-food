@@ -343,7 +343,9 @@ input, textarea { font-family: inherit; }
 .cardapio-item .info .nome { font-weight: 800; font-size: 1.05rem; }
 .cardapio-item .info .desc { font-size: 0.88rem; color: #333; }
 .cardapio-item .valor { font-weight: 800; color: #1f7a1f; font-size: 1.05rem; }
+.cardapio-item .acoes { display: flex; flex-direction: column; gap: 6px; }
 .cardapio-item .excluir { background: #c0392b; color: #fff; border-radius: 6px; padding: 8px 10px; font-weight: 700; }
+.cardapio-item .editar { background: #2d6cdf; color: #fff; border-radius: 6px; padding: 8px 10px; font-weight: 700; }
 
 .btn-add-flutuante {
   width: 60px; height: 60px;
