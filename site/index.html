@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>o águia — loja</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<header class="site-topo">
+  <div>
+    <h1 id="nomeLojaSite">nome da loja</h1>
+    <span class="status-loja-tag fechada" id="statusLojaTag">carregando...</span>
+  </div>
+  <div class="avatar-loja" id="avatarLojaSite"></div>
+</header>
+
+<main class="site-lista" id="siteLista">
+  <p class="vazio-msg">carregando cardápio...</p>
+</main>
+
+<!-- VER PEDIDO -->
+<div class="ver-pedido-wrap" id="verPedidoWrap" style="display:none">
+  <div class="ver-pedido-circulo" id="verPedidoBtn">ver</div>
+  <span class="ver-pedido-texto">ver pedido</span>
+</div>
+
+<!-- MODAL: detalhes do(s) pedido(s) -->
+<div class="modal-overlay" id="modalPedidoOverlay">
+  <div class="modal-caixa">
+    <div class="modal-header-verde">
+      <span id="pedidoModalCliente">nome do cliente</span>
+      <span class="fechar" id="pedidoModalFechar">✕</span>
+    </div>
+    <div class="modal-corpo" id="pedidoModalLista">
+      <!-- cada pedido ativo do cliente é inserido aqui pelo site.js -->
+    </div>
+  </div>
+</div>
+
+<!-- CONFIGURAÇÃO (cliente) -->
+<div class="site-config-btn" id="siteConfigBtn">⚙️</div>
+<div class="modal-overlay" id="modalConfigOverlay">
+  <div class="modal-caixa">
+    <div class="modal-header">
+      <span>configuração</span>
+      <span class="fechar" id="modalConfigFechar">✕</span>
+    </div>
+    <div class="modal-corpo">
+      <button class="btn-sair-conta" id="btnSairContaCliente">sair da conta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: loja fechada -->
+<div class="modal-overlay" id="modalLojaFechadaOverlay">
+  <div class="modal-caixa" style="max-width:340px;">
+    <div class="modal-header" style="background:#c0392b;">
+      <span>loja fechada</span>
+      <span class="fechar" id="modalLojaFechadaFechar">✕</span>
+    </div>
+    <div class="modal-corpo" style="text-align:center; padding:24px 18px;">
+      <p style="font-size:1.05rem; font-weight:700;">A loja está fechada no momento.</p>
+      <p>Não é possível fazer pedidos agora. Tente novamente quando a loja abrir.</p>
+    </div>
+    <div class="modal-rodape">
+      <button class="btn-criar" id="btnLojaFechadaOk">entendi</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARRINHO -->
+<div class="carrinho-toggle-btn" id="carrinhoToggleBtn">
+  🛒
+  <span class="carrinho-badge" id="carrinhoBadge" style="display:none">0</span>
+</div>
+
+<!-- MODAL: escolher quantidade e adicionar produto ao carrinho -->
+<div class="modal-overlay" id="modalProdutoOverlay">
+  <div class="modal-caixa">
+    <div class="modal-header">
+      <span id="modalProdutoNome">produto</span>
+      <span class="fechar" id="modalProdutoFechar">✕</span>
+    </div>
+    <div class="modal-corpo">
+      <div class="produto-modal-foto" id="modalProdutoFoto"></div>
+      <p id="modalProdutoDesc"></p>
+      <p><strong id="modalProdutoValor"></strong></p>
+      <div class="qtd-controle">
+        <button id="modalQtdMenos">−</button>
+        <span id="modalQtdValor">1</span>
+        <button id="modalQtdMais">+</button>
+      </div>
+    </div>
+    <div class="modal-rodape">
+      <button class="btn-criar" id="modalAdicionarBtn">adicionar ao carrinho</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: carrinho / finalizar pedido -->
+<div class="modal-overlay" id="modalCarrinhoOverlay">
+  <div class="modal-caixa">
+    <div class="modal-header">
+      <span>meu carrinho</span>
+      <span class="fechar" id="modalCarrinhoFechar">✕</span>
+    </div>
+    <div class="modal-corpo">
+      <div id="carrinhoListaItens"></div>
+      <label class="label-modal">observação (opcional)</label>
+      <textarea class="campo-modal" id="carrinhoObservacao" rows="2" placeholder="ex: sem cebola, capricha no molho..."></textarea>
+      <label class="label-modal">forma de pagamento</label>
+      <select class="campo-modal" id="carrinhoPagamento">
+        <option value="Pix">Pix</option>
+        <option value="Cartão">Cartão</option>
+        <option value="Dinheiro">Dinheiro</option>
+      </select>
+      <div class="total-carrinho" id="carrinhoTotal">Total: R$ 0,00</div>
+    </div>
+    <div class="modal-rodape">
+      <button class="btn-criar btn-criar-azul" id="btnFinalizarCompra">comprar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="chat-toggle-btn" id="chatToggleBtn">💬</div>
+<div class="chat-janela" id="chatJanela">
+  <div class="chat-header">
+    <span id="chatHeaderTitulo">fale com a loja</span>
+    <span class="fechar" id="chatFechar">✕</span>
+  </div>
+  <div id="chatConversaView" style="display:flex; flex:1; flex-direction:column;">
+    <div class="chat-mensagens" id="chatMensagens"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="digite uma mensagem...">
+      <button id="chatEnviar">enviar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/core.js"></script>
+<script src="../js/site.js"></script>
+</body>
+</html>

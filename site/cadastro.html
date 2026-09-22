@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cria conta</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="cadastro-wrap">
+  <div class="cadastro-card">
+    <h1>cria conta</h1>
+
+    <label class="foto-perfil-input" id="labelFoto">
+      <span id="fotoTexto"></span>
+      <input type="file" accept="image/*" id="inputFoto">
+    </label>
+
+    <input class="campo" id="nomeUsuario" placeholder="crie um usario" maxlength="30">
+    <input class="campo" id="endereco" placeholder="endereço" maxlength="120">
+    <div class="erro-msg" id="erroMsg"></div>
+
+    <button class="btn-criar btn-criar-azul" id="btnCriar">criar</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/core.js"></script>
+<script>
+let fotoBase64 = null;
+
+document.getElementById("inputFoto").addEventListener("change", (e) => {
+  arquivoParaBase64(e.target.files[0], (base64) => {
+    if (!base64) return;
+    fotoBase64 = base64;
+    document.getElementById("labelFoto").innerHTML =
+      `<img src="${base64}"><input type="file" accept="image/*" id="inputFoto2">`;
+  });
+});
+
+document.getElementById("btnCriar").addEventListener("click", async () => {
+  const nomeUsuario = document.getElementById("nomeUsuario").value.trim();
+  const endereco = document.getElementById("endereco").value.trim();
+  const erro = document.getElementById("erroMsg");
+  erro.textContent = "";
+
+  const btn = document.getElementById("btnCriar");
+  btn.textContent = "carregando...";
+  const storeId = await resolverStoreIdAtivo();
+
+  if (!storeId) {
+    erro.textContent = "loja não configurada. Peça o link correto para a loja.";
+    btn.textContent = "criar";
+    return;
+  }
+  if (!nomeUsuario) {
+    erro.textContent = "escolha um nome de usuário.";
+    btn.textContent = "criar";
+    return;
+  }
+
+  btn.textContent = "criando...";
+
+  try {
+    const clienteRef = await db.collection("lojas").doc(storeId).collection("clientes").add({
+      nome: nomeUsuario,
+      endereco,
+      foto: fotoBase64 || "",
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+      ultimaMensagemEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    localStorage.setItem("cliente_id", clienteRef.id);
+    localStorage.setItem("cliente_nome", nomeUsuario);
+    localStorage.setItem("cliente_endereco", endereco);
+    localStorage.setItem("loja_id", storeId);
+    localStorage.setItem("loja_id_atual_site", storeId);
+
+    window.location.href = "index.html?loja=" + storeId;
+  } catch (e) {
+    console.error(e);
+    erro.textContent = "não foi possível criar a conta. Verifique js/firebase-config.js";
+    btn.textContent = "criar";
+  }
+});
+</script>
+</body>
+</html>
