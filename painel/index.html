@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>o águia — painel</title>
+<link rel="stylesheet" href="../css/style.css?v=3">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="perfil-loja" onclick="mostrarSecao('usuario')">
+      <div class="avatar" id="avatarLoja">perfil</div>
+      <div class="nome-loja" id="nomeLojaSidebar">nome da loja</div>
+    </div>
+    <ul class="menu-lateral" id="menuLateral">
+      <li data-secao="loja" class="ativo"><span class="bolinha"></span><span class="texto">loja</span></li>
+      <li data-secao="pedidos"><span class="bolinha"></span><span class="texto">pedidos</span></li>
+      <li data-secao="cardapio"><span class="bolinha"></span><span class="texto">cardápio</span></li>
+      <li data-secao="clientes"><span class="bolinha"></span><span class="texto">clientes</span></li>
+      <li data-secao="vender"><span class="bolinha"></span><span class="texto">vender</span></li>
+      <li data-secao="historico"><span class="bolinha"></span><span class="texto">histórico</span></li>
+      <li data-secao="estatistica"><span class="bolinha"></span><span class="texto">estatística</span></li>
+      <li data-secao="usuario"><span class="bolinha"></span><span class="texto">usuário</span></li>
+      <li data-secao="catalogo"><span class="bolinha"></span><span class="texto">catálogo</span></li>
+      <li data-secao="configuracao"><span class="bolinha"></span><span class="texto">configuração</span></li>
+      <li data-secao="ajuda"><span class="bolinha"></span><span class="texto">ajuda</span></li>
+      <li data-secao="tirapedido"><span class="bolinha"></span><span class="texto">tira pedido</span></li>
+    </ul>
+  </aside>
+
+  <!-- TOPO -->
+  <header class="topo">
+    <div class="logo-aguia">🦅</div>
+    <h1>o águia</h1>
+    <div class="slogan">sistema<br>de comida<br>rapito</div>
+  </header>
+
+  <!-- CONTEÚDO -->
+  <main class="conteudo" id="conteudo">
+
+    <!-- LOJA -->
+    <section id="sec-loja">
+      <h2 class="titulo-secao">loja</h2>
+      <div class="status-loja-box">
+        <div class="linha-botoes-loja">
+          <div class="badge fechada" id="badgeLoja">loja fechada</div>
+          <button class="btn-abrir-loja" id="btnAbrirLoja">abrir loja</button>
+          <button class="btn-fechar-loja" id="btnFecharLoja">fechar loja</button>
+          <button class="btn-relatorio" id="btnRelatorio">relatório</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section id="sec-pedidos" style="display:none">
+      <h2 class="titulo-secao">pedidos</h2>
+      <div class="kanban">
+        <div class="kanban-col">
+          <h3>em andamento</h3>
+          <div id="col-andamento"></div>
+        </div>
+        <div class="kanban-col">
+          <h3>em preparo</h3>
+          <div id="col-preparo"></div>
+        </div>
+        <div class="kanban-col">
+          <h3>pronto</h3>
+          <div id="col-pronto"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CARDAPIO -->
+    <section id="sec-cardapio" style="display:none">
+      <h2 class="titulo-secao">cardápio</h2>
+      <div class="cardapio-lista" id="cardapioLista"></div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section id="sec-clientes" style="display:none">
+      <h2 class="titulo-secao">clientes</h2>
+      <ul class="lista-simples" id="listaClientes"></ul>
+    </section>
+
+    <!-- VENDER -->
+    <section id="sec-vender" style="display:none">
+      <h2 class="titulo-secao">vender</h2>
+      <div id="venderInicial">
+        <div class="btn-add-flutuante" id="btnAddProduto">+</div>
+      </div>
+      <form class="form-produto" id="formProduto" style="display:none">
+        <label>foto do lanche</label>
+        <label class="foto-produto-preview" id="labelFotoProduto">
+          escolher foto
+          <input type="file" accept="image/*" id="inputFotoProduto" style="display:none">
+        </label>
+        <label>nome</label>
+        <input type="text" id="nomeProduto" placeholder="ex: x-tudo" required>
+        <label>descrição</label>
+        <textarea id="descProduto" rows="3" placeholder="ingredientes, tamanho, etc."></textarea>
+        <label>valor (R$)</label>
+        <input type="number" id="valorProduto" placeholder="0.00" step="0.01" min="0" required>
+        <button type="submit" class="btn-salvar">salvar</button>
+      </form>
+    </section>
+
+    <!-- HISTORICO -->
+    <section id="sec-historico" style="display:none">
+      <h2 class="titulo-secao">histórico</h2>
+      <ul class="lista-simples" id="listaHistorico"></ul>
+    </section>
+
+    <!-- ESTATISTICA -->
+    <section id="sec-estatistica" style="display:none">
+      <h2 class="titulo-secao">estatística</h2>
+      <ul class="lista-simples" id="listaEstatistica"></ul>
+    </section>
+
+    <!-- USUARIO -->
+    <section id="sec-usuario" style="display:none">
+      <h2 class="titulo-secao">usuário</h2>
+      <div class="ajuda-box">
+        <p><strong>nome da loja:</strong> <span id="infoNomeLoja"></span></p>
+        <p><strong>usuário:</strong> <span id="infoUsuario"></span></p>
+        <p><strong>ID da loja (use no site do cliente):</strong> <span id="infoLojaId"></span></p>
+      </div>
+    </section>
+
+    <!-- CATALOGO -->
+    <section id="sec-catalogo" style="display:none">
+      <h2 class="titulo-secao">catálogo</h2>
+      <div class="cardapio-lista" id="catalogoLista"></div>
+    </section>
+
+    <!-- CONFIGURACAO -->
+    <section id="sec-configuracao" style="display:none">
+      <h2 class="titulo-secao">configuração</h2>
+      <div class="config-grid">
+        <div class="config-item">
+          <label>nome da loja</label>
+          <div class="config-linha">
+            <input type="text" id="configNomeLoja" class="campo-config">
+            <button class="btn-salvar-mini" id="btnSalvarNomeLoja">salvar</button>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>foto da loja</label>
+          <div class="config-linha">
+            <label class="foto-config-preview" id="labelFotoConfig">
+              <span>trocar</span>
+              <input type="file" accept="image/*" id="inputFotoConfig" style="display:none">
+            </label>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>cor de fundo do sistema</label>
+          <div class="swatches">
+            <div class="swatch" style="background:#5a5a5a" data-cor="#5a5a5a"></div>
+            <div class="swatch" style="background:#2c3e50" data-cor="#2c3e50"></div>
+            <div class="swatch" style="background:#3d2b56" data-cor="#3d2b56"></div>
+            <div class="swatch" style="background:#1f3d2c" data-cor="#1f3d2c"></div>
+            <div class="swatch" style="background:#5e2266" data-cor="#5e2266"></div>
+            <div class="swatch" style="background:#333333" data-cor="#333333"></div>
+          </div>
+        </div>
+        <button class="btn-sair-conta" id="btnSairConta">sair da conta</button>
+      </div>
+    </section>
+
+    <!-- AJUDA -->
+    <section id="sec-ajuda" style="display:none">
+      <h2 class="titulo-secao">ajuda</h2>
+      <div class="ajuda-box">
+        <p>Precisa de ajuda com o sistema o águia? Entre em contato com o desenvolvedor responsável pelo sistema para tirar dúvidas, relatar problemas ou pedir novas funções.</p>
+        <p><strong>suporte:</strong> fale com o dono do sistema pelo contato combinado com você.</p>
+      </div>
+    </section>
+
+    <!-- TIRA PEDIDO (pedido manual, tipo por telefone) -->
+    <section id="sec-tirapedido" style="display:none">
+      <h2 class="titulo-secao">tira pedido</h2>
+      <form class="form-produto" id="formTiraPedido">
+        <label>nome do cliente</label>
+        <input type="text" id="tpNomeCliente" placeholder="ex: Maria" required>
+        <label>nome do pedido</label>
+        <input type="text" id="tpNomePedido" placeholder="ex: 2x x-tudo + coca lata" required>
+        <label>valor do pedido (R$)</label>
+        <input type="number" id="tpValor" placeholder="0.00" step="0.01" min="0" required>
+        <label>endereço</label>
+        <input type="text" id="tpEndereco" placeholder="ex: rua tal, 123, bairro">
+        <label>forma de pagamento</label>
+        <select id="tpPagamento">
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Cartão">Cartão</option>
+        </select>
+        <button type="submit" class="btn-salvar">fazer pedido</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- NOTIFICAÇÕES -->
+  <aside class="notificacoes">
+    <h3>🔔 notificação <span class="btn-sino" id="btnSino">som: ligado</span></h3>
+    <div id="listaNotificacoes"></div>
+  </aside>
+</div>
+
+<!-- CHAT -->
+<div class="chat-toggle-btn" id="chatToggleBtn">
+  💬
+  <span class="chat-badge" id="chatBadge" style="display:none">0</span>
+</div>
+<div class="chat-janela" id="chatJanela">
+  <div class="chat-header">
+    <span id="chatHeaderTitulo">conversas</span>
+    <span class="fechar" id="chatFechar">✕</span>
+  </div>
+  <div id="chatListaView">
+    <div class="chat-lista-conversas" id="chatListaConversas"></div>
+  </div>
+  <div id="chatConversaView" style="display:none; flex:1; flex-direction:column;">
+    <div class="chat-mensagens" id="chatMensagens"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="digite uma mensagem...">
+      <button id="chatEnviar">enviar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js?v=3"></script>
+<script src="../js/core.js?v=3"></script>
+<script src="../js/painel.js?v=3"></script>
+</body>
+</html>

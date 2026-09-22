@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>o águia — cria conta</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="cadastro-wrap">
+  <div class="cadastro-card">
+    <h1>cria conta</h1>
+
+    <label class="foto-perfil-input" id="labelFoto">
+      <span id="fotoTexto">perfil</span>
+      <input type="file" accept="image/*" id="inputFoto">
+    </label>
+
+    <input class="campo" id="nomeLoja" placeholder="nome da loja" maxlength="40">
+    <input class="campo" id="nomeUsuario" placeholder="nome de usuario" maxlength="30">
+    <div class="erro-msg" id="erroMsg"></div>
+
+    <button class="btn-criar" id="btnCriar">criar</button>
+
+    <a class="link-secundario" href="index.html">já tenho uma loja cadastrada (entrar)</a>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/core.js"></script>
+<script>
+let fotoBase64 = null;
+
+document.getElementById("inputFoto").addEventListener("change", (e) => {
+  arquivoParaBase64(e.target.files[0], (base64) => {
+    if (!base64) return;
+    fotoBase64 = base64;
+    document.getElementById("labelFoto").innerHTML =
+      `<img src="${base64}" alt="foto perfil"><input type="file" accept="image/*" id="inputFoto2">`;
+  });
+});
+
+document.getElementById("btnCriar").addEventListener("click", async () => {
+  const nomeLoja = document.getElementById("nomeLoja").value.trim();
+  const nomeUsuario = document.getElementById("nomeUsuario").value.trim();
+  const erro = document.getElementById("erroMsg");
+  erro.textContent = "";
+
+  if (!nomeLoja || !nomeUsuario) {
+    alert("Preencha os dois campos: nome da loja e nome de usuário.");
+    return;
+  }
+
+  const btn = document.getElementById("btnCriar");
+  btn.textContent = "criando...";
+
+  try {
+    const novaLojaRef = await db.collection("lojas").add({
+      nomeLoja,
+      usuario: nomeUsuario,
+      foto: fotoBase64 || "",
+      aberta: false,
+      corFundo: "#5a5a5a",
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // marca essa loja recém-criada como a "loja ativa" no momento, pra que o
+    // site do cliente passe a mostrar ela automaticamente, sem precisar
+    // editar o config.js na mão toda vez
+    await db.collection("config").doc("lojaAtiva").set({
+      lojaId: novaLojaRef.id,
+      nomeLoja,
+      atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    localStorage.setItem("loja_id", novaLojaRef.id);
+    localStorage.setItem("loja_nome", nomeLoja);
+    localStorage.setItem("loja_usuario", nomeUsuario);
+    localStorage.setItem("loja_foto", fotoBase64 || "");
+
+    window.location.href = "index.html";
+  } catch (e) {
+    console.error(e);
+    erro.textContent = "não foi possível criar a loja: " + e.message;
+    btn.textContent = "criar";
+  }
+});
+</script>
+</body>
+</html>
