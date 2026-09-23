@@ -126,7 +126,8 @@ input, textarea { font-family: inherit; }
   grid-template-areas:
     "sidebar topo notif"
     "sidebar conteudo notif";
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -135,6 +136,7 @@ input, textarea { font-family: inherit; }
   padding: 18px 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .perfil-loja {
@@ -206,14 +208,29 @@ input, textarea { font-family: inherit; }
   overflow-y: auto;
 }
 .notificacoes h3 { display:flex; align-items:center; gap:6px; font-size:0.95rem; margin: 0 0 8px; }
+.btn-limpar-historico {
+  background: #1f7ae0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  width: 100%;
+}
 .notif-subtitulo {
   background: var(--purple);
   color: #fff;
-  padding: 8px 12px;
+  padding: 6px 12px;
   font-weight: 800;
-  font-size: 0.85rem;
-  margin: 14px 0 8px;
+  font-size: 0.8rem;
+  margin: 8px 0 4px;
   border-radius: 6px;
+}
+.lista-notif-scroll {
+  max-height: 130px;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 .btn-sino {
   margin-left: auto;
