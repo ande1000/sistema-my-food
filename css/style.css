@@ -417,10 +417,11 @@ input, textarea { font-family: inherit; }
 
 /* formulario vender/produto */
 .form-produto {
-  max-width: 460px;
+  max-width: 400px;
   background: #fff;
   padding: 24px;
   border-radius: 10px;
+  margin: 0 auto;
 }
 .form-produto label { display:block; font-weight:700; margin-bottom:6px; margin-top:14px; }
 .form-produto input, .form-produto textarea {
