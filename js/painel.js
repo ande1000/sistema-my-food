@@ -101,22 +101,37 @@ function renderizarPedidos(snap) {
   const colPreparo = document.getElementById("col-preparo");
   const colPronto = document.getElementById("col-pronto");
   const listaNotif = document.getElementById("listaNotificacoes");
+  const listaConcluidos = document.getElementById("listaConcluidos");
+  const listaCancelados = document.getElementById("listaCancelados");
   colAndamento.innerHTML = "";
   colPreparo.innerHTML = "";
   colPronto.innerHTML = "";
   listaNotif.innerHTML = "";
+  listaConcluidos.innerHTML = "";
+  listaCancelados.innerHTML = "";
 
   let contadorPedido = 0;
 
   snap.forEach(doc => {
     const p = doc.data();
-    if (p.saiu) { delete pedidoEtapaAnterior[doc.id]; return; } // pedido já foi entregue, some da tela
-    contadorPedido++;
-    const criadoEmMs = p.criadoEm && p.criadoEm.toDate ? p.criadoEm.toDate().getTime() : Date.now();
     const nomeCliente = p.clienteNome || ("cliente " + doc.id.slice(0, 4));
     const itensTexto = (p.itens || []).map(i => i.nome).join(", ");
 
-    // ---- pedido cancelado pelo cliente: mostra por 1 minuto e depois some ----
+    if (p.saiu) {
+      delete pedidoEtapaAnterior[doc.id];
+      // pedido entregue (clicou em "sair"): entra na lista de concluídos
+      if (!p.cancelado) {
+        const item = document.createElement("div");
+        item.className = "item-concluido";
+        item.textContent = `${nomeCliente} — ${itensTexto}`;
+        listaConcluidos.appendChild(item);
+      }
+      return; // some do kanban
+    }
+    contadorPedido++;
+    const criadoEmMs = p.criadoEm && p.criadoEm.toDate ? p.criadoEm.toDate().getTime() : Date.now();
+
+    // ---- pedido cancelado pelo cliente: mostra por 1 minuto no kanban, mas fica sempre na lista de cancelados ----
     if (p.cancelado) {
       const canceladoEmMs = p.canceladoEm && p.canceladoEm.toDate ? p.canceladoEm.toDate().getTime() : Date.now();
       const anterior = pedidoEtapaAnterior[doc.id];
@@ -125,7 +140,12 @@ function renderizarPedidos(snap) {
       }
       pedidoEtapaAnterior[doc.id] = { etapa: "cancelado", atraso: false, cancelado: true, previsaoAtiva: false };
 
-      if (Date.now() - canceladoEmMs >= 60000) return; // some do painel depois de 1 minuto
+      const itemCancelado = document.createElement("div");
+      itemCancelado.className = "item-cancelado";
+      itemCancelado.textContent = `${nomeCliente} — ${itensTexto}`;
+      listaCancelados.appendChild(itemCancelado);
+
+      if (Date.now() - canceladoEmMs >= 60000) return; // some do kanban depois de 1 minuto
 
       const card = document.createElement("div");
       card.className = "pedido-card";
@@ -208,6 +228,10 @@ function renderizarPedidos(snap) {
     else if (etapa === "preparo") colPreparo.appendChild(card);
     else colPronto.appendChild(card);
   });
+
+  if (!listaNotif.children.length) listaNotif.innerHTML = '<p class="vazio-msg-mini">nenhum pedido em aberto.</p>';
+  if (!listaConcluidos.children.length) listaConcluidos.innerHTML = '<p class="vazio-msg-mini">nenhum pedido concluído ainda.</p>';
+  if (!listaCancelados.children.length) listaCancelados.innerHTML = '<p class="vazio-msg-mini">nenhum pedido cancelado.</p>';
 }
 
 lojaRef.collection("pedidos").orderBy("criadoEm", "desc").onSnapshot(snap => {
