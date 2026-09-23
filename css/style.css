@@ -206,6 +206,15 @@ input, textarea { font-family: inherit; }
   overflow-y: auto;
 }
 .notificacoes h3 { display:flex; align-items:center; gap:6px; font-size:0.95rem; margin: 0 0 8px; }
+.notif-subtitulo {
+  background: var(--purple);
+  color: #fff;
+  padding: 8px 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin: 14px 0 8px;
+  border-radius: 6px;
+}
 .btn-sino {
   margin-left: auto;
   background: rgba(255,255,255,0.15);
@@ -217,6 +226,9 @@ input, textarea { font-family: inherit; }
 }
 .btn-sino.desativado { background: #7a1414; }
 .notificacoes .item { color: #8ef07a; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
+.notificacoes .item-concluido { color: #cfd8dc; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+.notificacoes .item-cancelado { color: #ff8f8f; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px; }
+.notificacoes .vazio-msg-mini { color: #bbb; font-size: 0.78rem; padding: 4px 0; }
 
 .conteudo {
   grid-area: conteudo;
@@ -236,6 +248,8 @@ input, textarea { font-family: inherit; }
 }
 
 /* status loja */
+.titulo-loja { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.titulo-loja .badge { padding: 8px 20px; font-size: 0.85rem; margin: 0; }
 .status-loja-box { text-align: center; padding: 14px 0 40px; }
 .status-loja-box .badge {
   display: inline-block;
