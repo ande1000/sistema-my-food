@@ -640,6 +640,12 @@ input, textarea { font-family: inherit; }
 }
 
 /* ---------- SITE DO CLIENTE ---------- */
+.site-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
 .site-topo {
   background: var(--green);
   padding: 20px 24px;
@@ -647,6 +653,7 @@ input, textarea { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
   color: #123312;
+  flex-shrink: 0;
 }
 .site-topo h1 { font-size: 1.5rem; margin: 0; font-weight: 800; }
 .site-topo .avatar-loja {
@@ -673,6 +680,9 @@ input, textarea { font-family: inherit; }
   display: flex;
   flex-direction: column;
   gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 .produto-card {
   display: flex;
