@@ -225,20 +225,21 @@
 </div>
 
 <!-- CHAT -->
-<div class="chat-janela" id="chatJanela">
+<div class="chat-janela chat-janela-painel" id="chatJanela">
   <div class="chat-header">
-    <span id="chatHeaderTitulo">conversas</span>
+    <span id="chatHeaderTitulo">chat águia</span>
     <span class="fechar" id="chatFechar">✕</span>
   </div>
-  <div id="chatListaView">
+  <div class="chat-corpo">
     <div class="chat-lista-conversas" id="chatListaConversas"></div>
-  </div>
-  <div id="chatConversaView" style="display:none; flex:1; flex-direction:column;">
-    <div class="chat-mensagens" id="chatMensagens"></div>
-    <div class="chat-input-row">
-      <input type="text" id="chatInput" placeholder="digite uma mensagem...">
-      <button id="chatEnviar">enviar</button>
+    <div class="chat-painel-mensagens">
+      <div class="chat-cliente-nome" id="chatClienteNome">selecione uma conversa</div>
+      <div class="chat-mensagens" id="chatMensagens"></div>
     </div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="digite uma mensagem...">
+    <button id="chatEnviar" class="btn-chat-ok">OK</button>
   </div>
 </div>
 
