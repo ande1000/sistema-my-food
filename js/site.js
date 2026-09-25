@@ -226,20 +226,10 @@
       criadoEm: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    await clienteRef.update({ ultimaMensagemEm: firebase.firestore.FieldValue.serverTimestamp() });
-
-    const resumoItens = carrinho.map(i => `${i.qtd}x ${i.nome}`).join(", ");
-    const totalPedido = carrinho.reduce((soma, i) => soma + i.valor * i.qtd, 0);
-
     carrinho = [];
     atualizarBadgeCarrinho();
     document.getElementById("carrinhoObservacao").value = "";
     document.getElementById("modalCarrinhoOverlay").classList.remove("aberto");
-
-    abrirChat();
-    let mensagem = `Pedido feito: ${resumoItens} — total ${formatarValor(totalPedido)} — pagamento: ${formaPagamento}`;
-    if (observacao) mensagem += ` — obs: ${observacao}`;
-    await enviarMensagemAutomatica(mensagem);
   });
 
   document.getElementById("modalLojaFechadaFechar").addEventListener("click", () => {
