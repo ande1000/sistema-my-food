@@ -639,6 +639,126 @@ input, textarea { font-family: inherit; }
   justify-content: center;
 }
 
+/* CHAT DO PAINEL (redesenho: lista de clientes à esquerda + mensagens à direita) */
+.chat-janela-painel {
+  width: 540px;
+  max-width: 92vw;
+  height: 480px;
+}
+.chat-janela-painel .chat-header {
+  justify-content: center;
+  position: relative;
+  font-size: 1.3rem;
+  padding: 18px 16px;
+}
+.chat-janela-painel .chat-header .fechar {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+}
+.chat-corpo { display: flex; flex: 1; min-height: 0; }
+.chat-janela-painel .chat-lista-conversas {
+  width: 108px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: #fff;
+  border-right: 1px solid #eee;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.chat-janela-painel .chat-conversa-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border-bottom: none;
+  width: 100%;
+  text-align: center;
+}
+.chat-avatar-mini-wrap { position: relative; }
+.chat-avatar-mini {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--yellow);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+.chat-janela-painel .chat-conversa-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+}
+.chat-janela-painel .chat-nome-mini {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.15;
+  word-break: break-word;
+}
+.chat-conversa-item.ativo .chat-nome-mini { color: var(--purple); }
+.chat-painel-mensagens {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--gray-panel);
+}
+.chat-cliente-nome {
+  padding: 8px 14px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #444;
+  border-bottom: 1px solid #bbb;
+  flex-shrink: 0;
+  background: #d8d8d8;
+}
+.chat-janela-painel .msg {
+  border-radius: 12px;
+}
+.chat-janela-painel .msg.cliente {
+  align-self: flex-end;
+  background: rgba(255,255,255,0.65);
+  color: #222;
+}
+.chat-janela-painel .msg.loja {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.95);
+  color: #333;
+}
+.chat-janela-painel .chat-input-row {
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fff;
+}
+.chat-janela-painel .chat-input-row input {
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  background: #eee;
+  padding: 10px 16px;
+}
+.btn-chat-ok {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--green) !important;
+  color: #103310 !important;
+  font-weight: 800;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  padding: 0 !important;
+}
+
 /* ---------- SITE DO CLIENTE ---------- */
 .site-page {
   display: flex;
