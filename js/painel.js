@@ -698,6 +698,18 @@ document.getElementById("chatFechar").addEventListener("click", () => {
   chatJanela.classList.remove("aberto");
 });
 
+document.getElementById("btnChatConfig").addEventListener("click", async () => {
+  if (!clienteChatSelecionado) {
+    alert("selecione uma conversa primeiro.");
+    return;
+  }
+  if (!confirm("apagar todo o histórico de mensagens desta conversa? essa ação não pode ser desfeita.")) return;
+  const snap = await lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").get();
+  const batch = db.batch();
+  snap.forEach(doc => batch.delete(doc.ref));
+  if (!snap.empty) await batch.commit();
+});
+
 // lista de clientes que já mandaram mensagem (conversas), com foto e nome do perfil
 function renderizarListaConversas() {
   const container = document.getElementById("chatListaConversas");
@@ -714,62 +726,4 @@ function renderizarListaConversas() {
     const naoLidas = naoLidasPorCliente[id] || 0;
     item.innerHTML = `
       <div class="chat-avatar-mini-wrap">
-        <div class="chat-avatar-mini" style="background-image:url('${c.foto || ""}')"></div>
-        ${naoLidas > 0 ? `<span class="chat-conversa-badge">${naoLidas}</span>` : ""}
-      </div>
-      <div class="chat-nome-mini">${escapeHtml(c.nome || ("cliente " + id.slice(0, 4)))}</div>
-    `;
-    item.addEventListener("click", () => abrirConversa(id, c.nome));
-    container.appendChild(item);
-  });
-}
-
-lojaRef.collection("clientes").orderBy("ultimaMensagemEm", "desc").onSnapshot(snap => {
-  clientesCache = {};
-  snap.forEach(doc => {
-    clientesCache[doc.id] = doc.data();
-    iniciarListenerMensagens(doc.id);
-  });
-  renderizarListaConversas();
-});
-
-function abrirConversa(clienteId, nomeCliente) {
-  clienteChatSelecionado = clienteId;
-  chatClienteNome.textContent = nomeCliente || "conversa";
-  marcarConversaComoLida(clienteId);
-
-  if (unsubChatMsgs) unsubChatMsgs();
-  unsubChatMsgs = lojaRef.collection("clientes").doc(clienteId).collection("chat")
-    .orderBy("criadoEm", "asc")
-    .onSnapshot(snap => {
-      const box = document.getElementById("chatMensagens");
-      box.innerHTML = "";
-      snap.forEach(doc => {
-        const m = doc.data();
-        const div = document.createElement("div");
-        div.className = "msg " + (m.autor === "loja" ? "loja" : "cliente");
-        div.textContent = m.texto;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
-    });
-}
-
-function enviarMensagemLoja() {
-  const input = document.getElementById("chatInput");
-  const texto = input.value.trim();
-  if (!texto || !clienteChatSelecionado) return;
-  lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").add({
-    autor: "loja",
-    texto,
-    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  lojaRef.collection("clientes").doc(clienteChatSelecionado).update({
-    ultimaMensagemEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  input.value = "";
-}
-document.getElementById("chatEnviar").addEventListener("click", enviarMensagemLoja);
-document.getElementById("chatInput").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") enviarMensagemLoja();
-});
+        <div class="chat-avatar-mini" style="background-image:url('${c.foto ||
