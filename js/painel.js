@@ -93,26 +93,23 @@ document.getElementById("btnSino").addEventListener("click", (e) => {
 atualizarBotaoSino();
 
 /* ---------------- LIMPAR HISTÓRICO (pedidos concluídos e cancelados) ---------------- */
-const btnLimparHistoricoEl = document.getElementById("btnLimparHistorico");
-if (btnLimparHistoricoEl) {
-  btnLimparHistoricoEl.addEventListener("click", async () => {
-    if (!confirm("apagar todo o histórico de pedidos concluídos e cancelados? essa ação não pode ser desfeita.")) return;
-    const btn = document.getElementById("btnLimparHistorico");
-    btn.textContent = "apagando...";
-    const snap = await lojaRef.collection("pedidos").get();
-    const batch = db.batch();
-    let count = 0;
-    snap.forEach(doc => {
-      const p = doc.data();
-      if (p.saiu || p.cancelado) {
-        batch.delete(doc.ref);
-        count++;
-      }
-    });
-    if (count > 0) await batch.commit();
-    btn.textContent = "🗑️ limpar histórico";
+document.getElementById("btnLimparHistorico").addEventListener("click", async () => {
+  if (!confirm("apagar todo o histórico de pedidos concluídos e cancelados? essa ação não pode ser desfeita.")) return;
+  const btn = document.getElementById("btnLimparHistorico");
+  btn.textContent = "apagando...";
+  const snap = await lojaRef.collection("pedidos").get();
+  const batch = db.batch();
+  let count = 0;
+  snap.forEach(doc => {
+    const p = doc.data();
+    if (p.saiu || p.cancelado) {
+      batch.delete(doc.ref);
+      count++;
+    }
   });
-}
+  if (count > 0) await batch.commit();
+  btn.textContent = "🗑️ limpar histórico";
+});
 
 /* ---------------- PEDIDOS (KANBAN) ---------------- */
 let ultimoSnapPedidos = null;
@@ -700,21 +697,6 @@ chatToggleBtn.addEventListener("click", () => {
 document.getElementById("chatFechar").addEventListener("click", () => {
   chatJanela.classList.remove("aberto");
 });
-
-const btnChatConfig = document.getElementById("btnChatConfig");
-if (btnChatConfig) {
-  btnChatConfig.addEventListener("click", async () => {
-    if (!clienteChatSelecionado) {
-      alert("selecione uma conversa primeiro.");
-      return;
-    }
-    if (!confirm("apagar todo o histórico de mensagens desta conversa? essa ação não pode ser desfeita.")) return;
-    const snap = await lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").get();
-    const batch = db.batch();
-    snap.forEach(doc => batch.delete(doc.ref));
-    if (!snap.empty) await batch.commit();
-  });
-}
 
 // lista de clientes que já mandaram mensagem (conversas), com foto e nome do perfil
 function renderizarListaConversas() {
