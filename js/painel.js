@@ -93,23 +93,26 @@ document.getElementById("btnSino").addEventListener("click", (e) => {
 atualizarBotaoSino();
 
 /* ---------------- LIMPAR HISTÓRICO (pedidos concluídos e cancelados) ---------------- */
-document.getElementById("btnLimparHistorico").addEventListener("click", async () => {
-  if (!confirm("apagar todo o histórico de pedidos concluídos e cancelados? essa ação não pode ser desfeita.")) return;
-  const btn = document.getElementById("btnLimparHistorico");
-  btn.textContent = "apagando...";
-  const snap = await lojaRef.collection("pedidos").get();
-  const batch = db.batch();
-  let count = 0;
-  snap.forEach(doc => {
-    const p = doc.data();
-    if (p.saiu || p.cancelado) {
-      batch.delete(doc.ref);
-      count++;
-    }
+const btnLimparHistoricoEl = document.getElementById("btnLimparHistorico");
+if (btnLimparHistoricoEl) {
+  btnLimparHistoricoEl.addEventListener("click", async () => {
+    if (!confirm("apagar todo o histórico de pedidos concluídos e cancelados? essa ação não pode ser desfeita.")) return;
+    const btn = document.getElementById("btnLimparHistorico");
+    btn.textContent = "apagando...";
+    const snap = await lojaRef.collection("pedidos").get();
+    const batch = db.batch();
+    let count = 0;
+    snap.forEach(doc => {
+      const p = doc.data();
+      if (p.saiu || p.cancelado) {
+        batch.delete(doc.ref);
+        count++;
+      }
+    });
+    if (count > 0) await batch.commit();
+    btn.textContent = "🗑️ limpar histórico";
   });
-  if (count > 0) await batch.commit();
-  btn.textContent = "🗑️ limpar histórico";
-});
+}
 
 /* ---------------- PEDIDOS (KANBAN) ---------------- */
 let ultimoSnapPedidos = null;
@@ -698,17 +701,20 @@ document.getElementById("chatFechar").addEventListener("click", () => {
   chatJanela.classList.remove("aberto");
 });
 
-document.getElementById("btnChatConfig").addEventListener("click", async () => {
-  if (!clienteChatSelecionado) {
-    alert("selecione uma conversa primeiro.");
-    return;
-  }
-  if (!confirm("apagar todo o histórico de mensagens desta conversa? essa ação não pode ser desfeita.")) return;
-  const snap = await lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").get();
-  const batch = db.batch();
-  snap.forEach(doc => batch.delete(doc.ref));
-  if (!snap.empty) await batch.commit();
-});
+const btnChatConfig = document.getElementById("btnChatConfig");
+if (btnChatConfig) {
+  btnChatConfig.addEventListener("click", async () => {
+    if (!clienteChatSelecionado) {
+      alert("selecione uma conversa primeiro.");
+      return;
+    }
+    if (!confirm("apagar todo o histórico de mensagens desta conversa? essa ação não pode ser desfeita.")) return;
+    const snap = await lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    if (!snap.empty) await batch.commit();
+  });
+}
 
 // lista de clientes que já mandaram mensagem (conversas), com foto e nome do perfil
 function renderizarListaConversas() {
@@ -726,4 +732,62 @@ function renderizarListaConversas() {
     const naoLidas = naoLidasPorCliente[id] || 0;
     item.innerHTML = `
       <div class="chat-avatar-mini-wrap">
-        <div class="chat-avatar-mini" style="background-image:url('${c.foto ||
+        <div class="chat-avatar-mini" style="background-image:url('${c.foto || ""}')"></div>
+        ${naoLidas > 0 ? `<span class="chat-conversa-badge">${naoLidas}</span>` : ""}
+      </div>
+      <div class="chat-nome-mini">${escapeHtml(c.nome || ("cliente " + id.slice(0, 4)))}</div>
+    `;
+    item.addEventListener("click", () => abrirConversa(id, c.nome));
+    container.appendChild(item);
+  });
+}
+
+lojaRef.collection("clientes").orderBy("ultimaMensagemEm", "desc").onSnapshot(snap => {
+  clientesCache = {};
+  snap.forEach(doc => {
+    clientesCache[doc.id] = doc.data();
+    iniciarListenerMensagens(doc.id);
+  });
+  renderizarListaConversas();
+});
+
+function abrirConversa(clienteId, nomeCliente) {
+  clienteChatSelecionado = clienteId;
+  chatClienteNome.textContent = nomeCliente || "conversa";
+  marcarConversaComoLida(clienteId);
+
+  if (unsubChatMsgs) unsubChatMsgs();
+  unsubChatMsgs = lojaRef.collection("clientes").doc(clienteId).collection("chat")
+    .orderBy("criadoEm", "asc")
+    .onSnapshot(snap => {
+      const box = document.getElementById("chatMensagens");
+      box.innerHTML = "";
+      snap.forEach(doc => {
+        const m = doc.data();
+        const div = document.createElement("div");
+        div.className = "msg " + (m.autor === "loja" ? "loja" : "cliente");
+        div.textContent = m.texto;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+}
+
+function enviarMensagemLoja() {
+  const input = document.getElementById("chatInput");
+  const texto = input.value.trim();
+  if (!texto || !clienteChatSelecionado) return;
+  lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").add({
+    autor: "loja",
+    texto,
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  lojaRef.collection("clientes").doc(clienteChatSelecionado).update({
+    ultimaMensagemEm: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  input.value = "";
+}
+document.getElementById("chatEnviar").addEventListener("click", enviarMensagemLoja);
+document.getElementById("chatInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") enviarMensagemLoja();
+});
