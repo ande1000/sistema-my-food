@@ -12,6 +12,11 @@
     return;
   }
 
+  const lojaRef = db.collection("lojas").doc(storeId);
+
+  // conta 1 "clique" toda vez que alguém abre o link do site, com ou sem conta
+  lojaRef.update({ cliques: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+
   // Se a loja ativa mudou desde a última vez que esse navegador acessou
   // (por exemplo, o dono saiu da conta no painel e criou uma loja nova),
   // a conta do cliente que estava salva aqui pertencia à loja ANTIGA e não
@@ -32,7 +37,9 @@
     return;
   }
 
-  const lojaRef = db.collection("lojas").doc(storeId);
+  // conta 1 "visitante" toda vez que um cliente já cadastrado (logado) entra na loja
+  lojaRef.update({ visitantes: firebase.firestore.FieldValue.increment(1) }).catch(() => {});
+
   const clienteRef = lojaRef.collection("clientes").doc(clienteId);
 
   /* ---------------- DADOS DA LOJA (nome, foto, aberta/fechada) ---------------- */
