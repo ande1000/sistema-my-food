@@ -62,6 +62,12 @@ lojaRef.onSnapshot(doc => {
     btnFechar.classList.add("ativo");
     btnAbrir.classList.remove("ativo");
   }
+
+  // contadores de cliques (acessos ao link) e visitantes (clientes logados que entraram)
+  const contadorCliques = document.getElementById("contadorCliques");
+  const contadorVisitantes = document.getElementById("contadorVisitantes");
+  if (contadorCliques) contadorCliques.textContent = String(lojaAtual.cliques || 0).padStart(2, "0");
+  if (contadorVisitantes) contadorVisitantes.textContent = String(lojaAtual.visitantes || 0).padStart(2, "0");
 });
 
 document.getElementById("btnAbrirLoja").addEventListener("click", () => {
@@ -93,23 +99,26 @@ document.getElementById("btnSino").addEventListener("click", (e) => {
 atualizarBotaoSino();
 
 /* ---------------- LIMPAR HISTÓRICO (pedidos concluídos e cancelados) ---------------- */
-document.getElementById("btnLimparHistorico").addEventListener("click", async () => {
-  if (!confirm("apagar todo o histórico de pedidos concluídos e cancelados? essa ação não pode ser desfeita.")) return;
-  const btn = document.getElementById("btnLimparHistorico");
-  btn.textContent = "apagando...";
-  const snap = await lojaRef.collection("pedidos").get();
-  const batch = db.batch();
-  let count = 0;
-  snap.forEach(doc => {
-    const p = doc.data();
-    if (p.saiu || p.cancelado) {
-      batch.delete(doc.ref);
-      count++;
-    }
+const btnLimparHistoricoEl = document.getElementById("btnLimparHistorico");
+if (btnLimparHistoricoEl) {
+  btnLimparHistoricoEl.addEventListener("click", async () => {
+    if (!confirm("apagar todo o histórico de pedidos concluídos e cancelados? essa ação não pode ser desfeita.")) return;
+    const btn = document.getElementById("btnLimparHistorico");
+    btn.textContent = "apagando...";
+    const snap = await lojaRef.collection("pedidos").get();
+    const batch = db.batch();
+    let count = 0;
+    snap.forEach(doc => {
+      const p = doc.data();
+      if (p.saiu || p.cancelado) {
+        batch.delete(doc.ref);
+        count++;
+      }
+    });
+    if (count > 0) await batch.commit();
+    btn.textContent = "🗑️ limpar histórico";
   });
-  if (count > 0) await batch.commit();
-  btn.textContent = "🗑️ limpar histórico";
-});
+}
 
 /* ---------------- PEDIDOS (KANBAN) ---------------- */
 let ultimoSnapPedidos = null;
@@ -697,6 +706,21 @@ chatToggleBtn.addEventListener("click", () => {
 document.getElementById("chatFechar").addEventListener("click", () => {
   chatJanela.classList.remove("aberto");
 });
+
+const btnChatConfig = document.getElementById("btnChatConfig");
+if (btnChatConfig) {
+  btnChatConfig.addEventListener("click", async () => {
+    if (!clienteChatSelecionado) {
+      alert("selecione uma conversa primeiro.");
+      return;
+    }
+    if (!confirm("apagar todo o histórico de mensagens desta conversa? essa ação não pode ser desfeita.")) return;
+    const snap = await lojaRef.collection("clientes").doc(clienteChatSelecionado).collection("chat").get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    if (!snap.empty) await batch.commit();
+  });
+}
 
 // lista de clientes que já mandaram mensagem (conversas), com foto e nome do perfil
 function renderizarListaConversas() {
