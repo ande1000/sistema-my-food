@@ -12,6 +12,44 @@ let lojaAtual = null;
 let clienteChatSelecionado = null;
 let unsubChatMsgs = null;
 
+/* ---------------- AVISO DE PAGAMENTO (barra verde no topo, some em 30min ou no X) ---------------- */
+const avisosPagamentoDismissados = new Set(); // ids fechados manualmente nesta sessão
+const TEMPO_AVISO_PAGAMENTO_MS = 30 * 60 * 1000; // 30 minutos
+
+function renderizarAvisosPagamento(docs) {
+  const wrap = document.getElementById("avisoPagamentoWrap");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  const agora = Date.now();
+
+  docs.forEach(doc => {
+    if (avisosPagamentoDismissados.has(doc.id)) return;
+    const a = doc.data();
+    const criadoMs = a.criadoEm && a.criadoEm.toDate ? a.criadoEm.toDate().getTime() : agora;
+    if (agora - criadoMs >= TEMPO_AVISO_PAGAMENTO_MS) return; // expirou sozinho
+
+    const linha = document.createElement("div");
+    linha.className = "aviso-pagamento";
+    linha.innerHTML = `
+      <span>✅ ${escapeHtml(a.mensagem || "pagamento confirmado")}</span>
+      <span class="fechar-aviso" data-id="${doc.id}">✕</span>
+    `;
+    linha.querySelector(".fechar-aviso").addEventListener("click", () => {
+      avisosPagamentoDismissados.add(doc.id);
+      linha.remove();
+    });
+    wrap.appendChild(linha);
+  });
+}
+
+let ultimosAvisosPagamentoDocs = [];
+lojaRef.collection("notificacoesPagamento").orderBy("criadoEm", "desc").limit(20).onSnapshot(snap => {
+  ultimosAvisosPagamentoDocs = snap.docs;
+  renderizarAvisosPagamento(ultimosAvisosPagamentoDocs);
+});
+// confere a cada minuto se algum aviso já passou dos 30 minutos, pra sumir sozinho
+setInterval(() => renderizarAvisosPagamento(ultimosAvisosPagamentoDocs), 60000);
+
 /* ---------------- NAVEGAÇÃO ENTRE SEÇÕES ---------------- */
 function mostrarSecao(nome) {
   document.querySelectorAll("main.conteudo > section").forEach(s => s.style.display = "none");
