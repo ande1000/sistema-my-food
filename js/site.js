@@ -220,6 +220,19 @@
       valor: i.valor * i.qtd,
       foto: (produtosCache[i.produtoId] && produtosCache[i.produtoId].foto) || ""
     }));
+    const valorTotal = itensPedido.reduce((soma, i) => soma + i.valor, 0);
+
+    if (formaPagamento === "Pix") {
+      document.getElementById("modalCarrinhoOverlay").classList.remove("aberto");
+      await iniciarPagamentoPix({
+        clienteNome: cliente.nome || "cliente",
+        endereco: cliente.endereco || "",
+        itens: itensPedido,
+        observacao,
+        valorTotal
+      });
+      return;
+    }
 
     await lojaRef.collection("pedidos").add({
       clienteId,
@@ -237,6 +250,99 @@
     atualizarBadgeCarrinho();
     document.getElementById("carrinhoObservacao").value = "";
     document.getElementById("modalCarrinhoOverlay").classList.remove("aberto");
+  });
+
+  /* ==========================================================================
+     PAGAMENTO PIX (QR Code gerado pelo servidor no Render)
+     ========================================================================== */
+  let unsubPagamentoPendente = null;
+
+  function mostrarEstadoPix(estado) {
+    document.getElementById("pixConteudoQr").style.display = estado === "qr" ? "block" : "none";
+    document.getElementById("pixConteudoSucesso").style.display = estado === "sucesso" ? "block" : "none";
+    document.getElementById("pixConteudoErro").style.display = estado === "erro" ? "block" : "none";
+  }
+
+  async function iniciarPagamentoPix(dadosPedido) {
+    const overlay = document.getElementById("modalPixOverlay");
+    const qrImagem = document.getElementById("pixQrImagem");
+    const carregando = document.getElementById("pixCarregando");
+    const copiarBtn = document.getElementById("pixCopiarBtn");
+
+    qrImagem.style.display = "none";
+    carregando.style.display = "block";
+    copiarBtn.style.display = "none";
+    document.getElementById("pixEstadoTexto").textContent = "faça seu pagamento aqui";
+    mostrarEstadoPix("qr");
+    overlay.classList.add("aberto");
+
+    if (!window.PAYMENT_API_URL || window.PAYMENT_API_URL.indexOf("COLE_AQUI") === 0) {
+      mostrarEstadoPix("erro");
+      return;
+    }
+
+    try {
+      const resposta = await fetch(window.PAYMENT_API_URL.replace(/\/$/, "") + "/criar-pagamento", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lojaId: storeId,
+          clienteId,
+          clienteNome: dadosPedido.clienteNome,
+          endereco: dadosPedido.endereco,
+          itens: dadosPedido.itens,
+          observacao: dadosPedido.observacao,
+          valorTotal: dadosPedido.valorTotal
+        })
+      });
+      const dados = await resposta.json();
+      if (!resposta.ok || !dados.qrCodeBase64) throw new Error(dados.erro || "falha ao gerar pagamento");
+
+      carregando.style.display = "none";
+      qrImagem.src = "data:image/png;base64," + dados.qrCodeBase64;
+      qrImagem.style.display = "block";
+      if (dados.copiaCola) {
+        copiarBtn.style.display = "inline-block";
+        copiarBtn.onclick = () => {
+          navigator.clipboard.writeText(dados.copiaCola).catch(() => {});
+          copiarBtn.textContent = "código copiado!";
+          setTimeout(() => { copiarBtn.textContent = "copiar código Pix"; }, 2000);
+        };
+      }
+
+      // escuta em tempo real até o servidor confirmar o pagamento (via webhook do Mercado Pago)
+      if (unsubPagamentoPendente) unsubPagamentoPendente();
+      unsubPagamentoPendente = db.collection("pagamentosPendentes").doc(dados.pendenteId)
+        .onSnapshot(snap => {
+          if (!snap.exists) return;
+          const p = snap.data();
+          if (p.confirmado) {
+            carrinho = [];
+            atualizarBadgeCarrinho();
+            document.getElementById("carrinhoObservacao").value = "";
+            document.getElementById("pixEstadoTexto").textContent = "pagamento aprovado";
+            mostrarEstadoPix("sucesso");
+            if (unsubPagamentoPendente) { unsubPagamentoPendente(); unsubPagamentoPendente = null; }
+          }
+        });
+    } catch (erro) {
+      console.error("erro ao gerar pagamento Pix:", erro);
+      mostrarEstadoPix("erro");
+    }
+  }
+
+  document.getElementById("pixFecharBtn").addEventListener("click", () => {
+    document.getElementById("modalPixOverlay").classList.remove("aberto");
+    if (unsubPagamentoPendente) { unsubPagamentoPendente(); unsubPagamentoPendente = null; }
+  });
+  document.getElementById("pixVerPedidoBtn").addEventListener("click", () => {
+    document.getElementById("modalPixOverlay").classList.remove("aberto");
+    renderizarListaPedidosModal();
+    document.getElementById("modalPedidoOverlay").classList.add("aberto");
+  });
+  document.getElementById("pixTentarNovoBtn").addEventListener("click", () => {
+    document.getElementById("modalPixOverlay").classList.remove("aberto");
+    document.getElementById("modalCarrinhoOverlay").classList.add("aberto");
   });
 
   document.getElementById("modalLojaFechadaFechar").addEventListener("click", () => {
