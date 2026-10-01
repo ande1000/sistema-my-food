@@ -126,6 +126,39 @@
   </div>
 </div>
 
+<!-- MODAL: pagamento via Pix (QR Code) -->
+<div class="modal-overlay" id="modalPixOverlay">
+  <div class="pix-caixa">
+    <div class="pix-header">❌ pagamento</div>
+    <div class="pix-corpo">
+      <p class="pix-subtitulo" id="pixEstadoTexto">faça seu pagamento aqui</p>
+
+      <div id="pixConteudoQr">
+        <div class="pix-qr-quadro" id="pixQrQuadro">
+          <div class="pix-carregando" id="pixCarregando">gerando QR Code...</div>
+          <img id="pixQrImagem" style="display:none" alt="QR Code Pix">
+        </div>
+        <p class="pix-ler-qrcode">LER QRcode</p>
+        <button class="pix-copia-cola-btn" id="pixCopiarBtn" style="display:none">copiar código Pix</button>
+        <p class="pix-aguardando">⏳ aguardando confirmação do pagamento...</p>
+      </div>
+
+      <div id="pixConteudoSucesso" style="display:none">
+        <div class="pix-sucesso-icone">✅</div>
+        <p class="pix-sucesso-texto">pagamento confirmado!</p>
+        <p class="pix-sucesso-sub">seu pedido já foi enviado pra loja.</p>
+        <button class="btn-criar" id="pixVerPedidoBtn">ver meu pedido</button>
+      </div>
+
+      <div id="pixConteudoErro" style="display:none">
+        <p class="pix-erro-texto">não foi possível gerar o pagamento agora. tente novamente em instantes.</p>
+        <button class="btn-criar" id="pixTentarNovoBtn">tentar de novo</button>
+      </div>
+    </div>
+    <button class="pix-fechar-btn" id="pixFecharBtn">fechar</button>
+  </div>
+</div>
+
 <!-- CHAT -->
 <div class="chat-toggle-btn" id="chatToggleBtn">💬</div>
 <div class="chat-janela" id="chatJanela">
