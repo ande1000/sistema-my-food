@@ -13,4 +13,4 @@ window.STORE_ID = "{"ok":true,"servico":"o águia — servidor de pagamento"}";
   endereço público do servidor. Depois de criar o serviço no Render, cole
   aqui a URL dele (algo como https://seu-servico.onrender.com).
 */
-window.PAYMENT_API_URL = "COLE_AQUI_A_URL_DO_RENDER";
+window.PAYMENT_API_URL = "https://sirvidor-pra-loja-food.onrender.com";
