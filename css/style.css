@@ -289,6 +289,19 @@ input, textarea { font-family: inherit; }
   white-space: nowrap;
 }
 .contador-caixa span { color: var(--green); margin-left: 6px; }
+.btn-zerar-contadores {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #c0392b;
+  color: #fff;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.btn-zerar-contadores:hover { background: #a3291d; }
 .status-loja-box { text-align: center; padding: 14px 0 40px; }
 .status-loja-box .badge {
   display: inline-block;
