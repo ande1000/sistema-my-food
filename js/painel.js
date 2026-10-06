@@ -108,6 +108,14 @@ lojaRef.onSnapshot(doc => {
   if (contadorVisitantes) contadorVisitantes.textContent = String(lojaAtual.visitantes || 0).padStart(2, "0");
 });
 
+const btnZerarContadores = document.getElementById("btnZerarContadores");
+if (btnZerarContadores) {
+  btnZerarContadores.addEventListener("click", () => {
+    if (!confirm("zerar os contadores de cliques e visitantes? essa ação não pode ser desfeita.")) return;
+    lojaRef.update({ cliques: 0, visitantes: 0 });
+  });
+}
+
 document.getElementById("btnAbrirLoja").addEventListener("click", () => {
   lojaRef.update({ aberta: true });
 });
